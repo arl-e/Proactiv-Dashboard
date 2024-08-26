@@ -67,7 +67,7 @@ color_palette = ["#006E7F", "#e66c37","#461b09","#f8a785", "#CC3636",  '#FFC288'
 @st.cache_data
 def load_data():
     # Replace this with your actual data loading method
-    df = df= pd.read_excel('mental_health_assessments.xlsx')
+    df = df= pd.read_csv('mental_health_assessments.csv')
     df['Date of Creation'] = pd.to_datetime(df['Date of Creation'])
     df['Due Date'] = pd.to_datetime(df['Due Date'])
     df['Check_in Date'] = pd.to_datetime(df["Check_in Date"])
