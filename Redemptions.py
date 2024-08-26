@@ -61,7 +61,7 @@ st.markdown('<h1 class = "main-title">Reward Redemption Dashboard</h1>', unsafe_
 color_palette = ["#006E7F", "#e66c37","#461b09","#f8a785", "#CC3636",  '#FFC288', '#EFB08C', '#FAD3CF']
 @st.cache_data
 def load_data():
-   data = pd.read_csv('reward_redemptions.csv')
+   data = pd.read_csv('reward_redemptions.csv',encoding="ISO-8859-1")
    data['Redeemed On'] = pd.to_datetime(data['Redeemed On'])
    data['Year'] = data['Redeemed On'].dt.year
    return data
