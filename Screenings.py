@@ -63,7 +63,7 @@ st.markdown('<h1 class = "main-title">Screening Dashboard</h1>', unsafe_allow_ht
 # Define colors to match the image
 color_palette = ["#006E7F", "#e66c37","#461b09","#f8a785", "#CC3636",  '#FFC288', '#EFB08C', '#FAD3CF']
 # Loading the data
-df2=pd.read_csv('screening_sessions.csv', encoding="utf-8")
+df2=pd.read_csv('screening_sessions.csv', encoding="latin1")
 # Ensure the 'Date' column is in datetime format
 df2['Date'] = pd.to_datetime(df2['Date'])
 df2['Month'] = df2['Date'].dt.strftime('%b')  # Extract month as abbreviated name
