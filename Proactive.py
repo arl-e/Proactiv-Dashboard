@@ -9,7 +9,7 @@ from datetime import datetime
 
 st.set_page_config(
     page_title="Eden Care ProActiv Dashboard",
-    page_icon=Image.open("EC_logo.png"),
+    page_icon=Image.open("EC_logoo.png"),
     layout="wide",
     initial_sidebar_state="expanded"
 )
