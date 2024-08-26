@@ -6,11 +6,6 @@ import matplotlib.colors as mcolors
 teal_color = '#009DAE'  # Teal green color code
 green_EC = '#138024'
 tangerine_color = '#E66C37'  # Tangerine orange color code
-st.set_page_config(
-    # page_title="Eden Care Proactiv Dashboard",
-    # page_icon=Image.open("./EC_logo2.png"),
-    layout="wide",
-    initial_sidebar_state="expanded")
 st.markdown(
     """
     <style>

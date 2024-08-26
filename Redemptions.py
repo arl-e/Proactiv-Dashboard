@@ -11,12 +11,6 @@ from datetime import datetime
 teal_color = '#009DAE'  # Teal green color code
 green_EC = '#138024'
 tangerine_color = '#E66C37'  # Tangerine orange color code
-st.set_page_config(
-    # page_title="Eden Care Proactiv Dashboard",
-    # page_icon=Image.open("./EC_logo2.png"),
-    layout="wide",
-    initial_sidebar_state="expanded")
-
 st.markdown(
     """
     <style>
@@ -332,15 +326,15 @@ if not filtered_data.empty:
     # Display in Streamlit
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown('<h2 class="custom-subheader"> Reedems Cost and Number Over Time</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="custom-subheader"> Reedemptions Cost and Number Over Time</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig, use_container_width=True)
         with st.expander("View Monthly Cost Data", expanded=False):
                 st.dataframe(df_time_series.style.background_gradient(cmap='YlOrBr'))
-        st.markdown('<h2 class="custom-subheader"> Redeems by Merchant Partner</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="custom-subheader"> Redemptions by Merchant Partner</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig_bar, use_container_width=True)
         with st.expander("View Merchant Data", expanded=False):
                 st.dataframe(df_merchant.style.background_gradient(cmap='YlOrBr'))
-        st.markdown('<h2 class="custom-subheader"> Redeems by Hour</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="custom-subheader"> Redemptions by Hour</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig_hours, use_container_width=True)
         with st.expander("View Hourly Items Data", expanded=False):
                 st.dataframe(df_hour.style.background_gradient(cmap='YlOrBr'))
@@ -349,13 +343,13 @@ if not filtered_data.empty:
         st.plotly_chart(fig_doughnut, use_container_width=True)
         with st.expander("View Scheme Data", expanded=False):
             st.dataframe(df_scheme.style.background_gradient(cmap='YlOrBr'))
-        st.markdown('<h2 class="custom-subheader"> Monthly Redeems</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="custom-subheader"> Monthly Redemptions</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig_months, use_container_width=True)
         with st.expander("View Monthly Cost Data", expanded=False):
             st.dataframe(df_month.style.background_gradient(cmap='YlOrBr'))
-        st.markdown('<h2 class="custom-subheader"> Top items Redemeed</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="custom-subheader"> Top items Redemptions</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig_pie, use_container_width=True)
-    st.markdown('<h2 class="custom-subheader"> Merchant partners Redeems by months</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="custom-subheader"> Merchant partners Redemptions by months</h2>', unsafe_allow_html=True)
     with st.expander("View Items Redeemed Data", expanded=False):
             st.dataframe(df_item.style.background_gradient(cmap='YlOrBr'))
     st.plotly_chart(fig_m, use_container_width=True)
