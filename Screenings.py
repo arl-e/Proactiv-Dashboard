@@ -63,7 +63,13 @@ st.markdown('<h1 class = "main-title">Screening Dashboard</h1>', unsafe_allow_ht
 # Define colors to match the image
 color_palette = ["#006E7F", "#e66c37","#461b09","#f8a785", "#CC3636",  '#FFC288', '#EFB08C', '#FAD3CF']
 # Loading the data
-df2=pd.read_csv('screening_sessions.csv', encoding='utf-8')
+@st.cache_data
+def load_data():
+    # Replace this with your actual data loading method
+    df = df= pd.read_csv('Screening_sessions.csv',encoding="ISO-8859-1")
+    return df
+# Load the dataset (replace 'path_to_your_file.xlsx' with the actual file path)
+df2 = load_data()
 # Ensure the 'Date' column is in datetime format
 df2['Date'] = pd.to_datetime(df2['Date'])
 df2['Month'] = df2['Date'].dt.strftime('%b')  # Extract month as abbreviated name
