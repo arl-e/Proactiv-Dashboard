@@ -219,6 +219,8 @@ if not filtered_data.empty:
         legend_title_text='Status',
         legend=dict(x=0.5, y=1.15, xanchor='center', orientation='h')  # Move legend above chart
     )
+    fig_grouped.update_layout(height=350, margin=dict(l=10, r=10, t=30, b=10))
+
 
         # Display the chart
     col1,col2=st.columns(2)
