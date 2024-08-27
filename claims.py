@@ -1,8 +1,14 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
-import matplotlib.colors as mcolors
-
+import seaborn as sns
+from PIL import Image
+import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from datetime import datetime
+color_palette = ["#006E7F", "#e66c37","#461b09","#f8a785", "#CC3636",  '#FFC288', '#EFB08C', '#FAD3CF']
 teal_color = '#009DAE'  # Teal green color code
 green_EC = '#138024'
 tangerine_color = '#E66C37'  # Tangerine orange color code
@@ -59,11 +65,11 @@ data = pd.read_csv('mental_health_claims.csv')
 
 # Convert the date column to datetime if necessary
 data["claim_date"] = pd.to_datetime(data["date_of_diagnosis"])
+data['last_modified_timestamp']=pd.to_datetime(data['last_modified_timestamp'])
 
 # Get min and max dates for the date input
 startDate = data["claim_date"].min()
 endDate = data["claim_date"].max()
-
 # CSS for date input boxes
 st.markdown("""
     <style>
@@ -193,75 +199,182 @@ if not filtered_data.empty:
     # Claims by Status - Pie chart
     with col1:
         st.markdown('<h2 class="custom-subheader"> Claims by Status</h2>', unsafe_allow_html=True)
-        claims_by_status = filtered_data['status'].value_counts()
+        
+        # Count the number of claims by status
+        claims_by_status = filtered_data['status'].value_counts().reset_index()
+        claims_by_status.columns = ['status', 'Count']  # Rename columns for clarity
 
         # Create a pie chart for claims by status
-        fig = go.Figure(data=[go.Pie(
-            labels=claims_by_status.index,
-            values=claims_by_status.values,
+        fig = px.pie(
+            claims_by_status, 
+            names='status', 
+            values='Count', 
             hole=0.5,
-            marker=dict(colors=["#006E7F", "#e66c37", "#3b9442"]),
-            textinfo='label+percent',
-            hoverinfo='label+percent'
-        )])
-
-        fig.update_layout(height=350, margin=dict(l=10, r=10, t=30, b=80))
-
-        # Display the pie chart
+            color_discrete_sequence=color_palette
+        )
+        fig.update_layout(
+            height=350, 
+            margin=dict(l=10, r=10, t=30, b=80),
+        
+        )
+        fig.update_traces(textposition='inside', textinfo='label+percent')
         st.plotly_chart(fig, use_container_width=True)
+        with st.expander("View Claim Status Data", expanded=False):
+            st.dataframe(claims_by_status.style.background_gradient(cmap='YlOrBr'))
+
+        
 
     # Top 10 Specializations Handling Claims - Vertical Bar chart
     with col2:
-        st.markdown('<h2 class="custom-subheader"> Top 10 Specializations </h2>', unsafe_allow_html=True)
-        top_specializations = filtered_data['attending_doctor_specialisation'].value_counts().head(10)
+        st.markdown('<h2 class="custom-subheader"> Top Specializations </h2>', unsafe_allow_html=True)
+        
+        # Get the top 10 specializations
+        top_specializations = filtered_data['attending_doctor_specialisation'].value_counts().head(10).reset_index()
+        top_specializations.columns = ['Specialization', 'Number of Claims']  # Rename columns for clarity
 
-        # Vertical bar chart for specializations
-        fig_specializations = go.Figure()
-        fig_specializations.add_trace(go.Bar(
-            x=top_specializations.index,  # Use x for vertical bars
-            y=top_specializations.values,  # Use y for vertical bars
-            marker=dict(color='#009DAE'),
-            text=top_specializations.values,
-            textposition='outside',
-            hoverinfo='x+text'
+        # Create a vertical bar chart for the top specializations
+        fig_specializations = px.bar(
+            top_specializations,
+            x='Specialization',
+            y='Number of Claims',
+            text='Number of Claims',
+            labels={'Specialization': 'Specializations', 'Number of Claims': 'Number of Claims'},
+            color_discrete_sequence=['#009DAE']  # Set the bar color
+        )
+        fig_specializations.update_traces(marker_color=teal_color)
+        # Update the layout to customize the appearance
+        fig_specializations.update_layout(
+            height=350, 
+            margin=dict(l=10, r=10, t=30, b=80),
+            xaxis_tickangle=90  # Rotate x-axis labels for better readability if needed
+        )
+        
+        fig_specializations.update_traces(textposition='outside')  # Position text outside the bars
+
+            # Display the vertical bar chart
+        st.plotly_chart(fig_specializations, use_container_width=True)
+        with st.expander("View Specialization Data", expanded=False):
+            st.dataframe(top_specializations.style.background_gradient(cmap='YlOrBr'))
+
+        st.markdown('<h2 class="custom-subheader"> Monthly Status Claims </h2>', unsafe_allow_html=True)
+            # Define the custom color palette
+        colors = ["#006E7F", "#e66c37", '#22A699',  "#CC3636","#f8a785", "#461b09", "#068DA9", '#FFA07A', '#006400']
+
+        # Define the order of months
+        month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+        filtered_data['Month'] = pd.Categorical(filtered_data['claim_date'].dt.strftime('%b'), categories=month_order, ordered=True)
+
+        # Group data by Month and Status, counting the number of claims
+        grouped_data = filtered_data.groupby(['Month', 'status']).agg({'claim_id': 'count'}).reset_index()
+
+        # Get unique statuses
+        statuses = grouped_data['status'].unique()
+
+        # Initialize the figure
+        fig_m = go.Figure()
+
+        # Add bar traces for each Status
+        for idx, status in enumerate(statuses):
+            subset = grouped_data[grouped_data['status'] == status]
+            fig_m.add_trace(go.Bar(
+                x=subset['Month'],
+                y=subset['claim_id'],
+                name=status,
+                marker_color=colors[idx % len(colors)]  # Cycle through colors
+            ))
+
+        # Update layout to group bars by month and customize chart appearance
+        fig_m.update_layout(
+            yaxis=dict(title="Number of Claims"),
+            xaxis=dict(title="Month"),
+            barmode='group',  # Group bars together by month
+            height=350,
+            margin=dict(l=10, r=10, t=30, b=10),
+            legend_title_text='Status',
+            legend=dict(x=0.5, y=1.15, xanchor='center', orientation='h')  # Move legend above chart
+        )
+
+        # Display the chart
+        st.plotly_chart(fig_m, use_container_width=True)
+        with st.expander("View Monthly Claims Data", expanded=False):
+            st.dataframe(grouped_data.style.background_gradient(cmap='YlOrBr'))
+        
+    with col1:  
+        # Add an area chart beneath the data table
+
+        st.markdown('<h2 class="custom-subheader">Claims and Claim Amount Over Time</h2>', unsafe_allow_html=True)
+
+        # Group data by claim date and count the number of claims per day
+        # claims_over_time = filtered_data.groupby(filtered_data['claim_date'].dt.date).size()
+        # Group data by month and aggregate claim amount and claim count
+        claims_over_time = filtered_data.groupby(filtered_data['claim_date'].dt.to_period('M')).agg({
+            'claim_amount': 'sum',
+            'claim_id': 'count'
+        }).reset_index()
+
+        # Convert 'claim date' from Period to String for display on the x-axis
+        claims_over_time['claim date'] = claims_over_time['claim_date'].astype(str)
+
+        # Create an area chart for claim amounts over time
+        fig_area_chart = go.Figure()
+
+        # Add trace for claim amounts
+        fig_area_chart.add_trace(go.Scatter(
+            x=claims_over_time["claim date"],
+            y=claims_over_time['claim_amount'],
+            mode='lines',
+            fill='tozeroy',
+            line=dict(color='#e66c37', width=2),
+            name='Claim Cost'
         ))
 
-        fig_specializations.update_layout(height=350, margin=dict(l=10, r=10, t=30, b=80))
+        # Add trace for number of claims with a secondary y-axis
+        fig_area_chart.add_trace(go.Scatter(
+            x=claims_over_time['claim date'],
+            y=claims_over_time['claim_id'],
+            mode='lines',
+            fill='tozeroy',
+            line=dict(color='#009DAE', width=2),
+            name='Number of Claims',
+            yaxis='y2'  # Assign to secondary y-axis
+        ))
 
-        # Display the vertical bar chart
-        st.plotly_chart(fig_specializations, use_container_width=True)
-        
-        
-    # Add an area chart beneath the data table
-
-    st.markdown('<h2 class="custom-subheader">Claims Over Time</h2>', unsafe_allow_html=True)
-
-    # Group data by claim date and count the number of claims per day
-    claims_over_time = filtered_data.groupby(filtered_data['claim_date'].dt.date).size()
-
-    # Create an area chart for claims over time
-    fig_area_chart = go.Figure()
-    fig_area_chart.add_trace(go.Scatter(
-        x=claims_over_time.index,  # Dates on x-axis
-        y=claims_over_time.values,  # Number of claims on y-axis
-        mode='lines',  # Only lines (no markers)
-        fill='tozeroy',  # Fill the area below the line
-        line=dict(color='#e66c37', width=2),
-        name='Claims Over Time'
-    ))
-
-    fig_area_chart.update_layout(height=350, margin=dict(l=10, r=10, t=30, b=80))
-
-
-    # Display the area chart
-    st.plotly_chart(fig_area_chart, use_container_width=True)
-
-        
-        
+        # Update layout with dual y-axis
+        fig_area_chart.update_layout(
+            height=350,
+            margin=dict(l=10, r=10, t=30, b=80),
+            xaxis=dict(title='Date'),
+            yaxis=dict(
+                title='Claim Cost',
+                titlefont=dict(color='#e66c37'),
+                tickfont=dict(color='#e66c37')
+            ),
+            yaxis2=dict(
+                title='Number of Claims',
+                titlefont=dict(color='#009DAE'),
+                tickfont=dict(color='#009DAE'),
+                overlaying='y',
+                side='right'
+            ),
+            legend=dict(
+                x=0.1, y=1.1,
+                orientation='h'
+            )
+        )
 
 
-    # Data table for claims
-    st.markdown('<h2 class="custom-subheader">Claim Data Table</h2>', unsafe_allow_html=True)
+        # Display the area chart
+        st.plotly_chart(fig_area_chart, use_container_width=True)
+        claims_over_time = claims_over_time.rename(columns={'claim_id': 'Number of Claims'})
+        with st.expander("View Claims Data Over Time", expanded=False):
+            st.dataframe(claims_over_time.style.background_gradient(cmap='YlOrBr'))
+
+            
+            
+
+
+        # Data table for claims
+        st.markdown('<h2 class="custom-subheader">Claim Data Table</h2>', unsafe_allow_html=True)
 
     with st.expander("View Claim Data"):
         st.dataframe(filtered_data.style.background_gradient(cmap='YlOrBr'))

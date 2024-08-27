@@ -313,7 +313,7 @@ if not filtered_data.empty:
 
     # Update layout to group bars by month and customize chart appearance
     fig_m.update_layout(
-        yaxis=dict(title="Total Item Cost (RWF)"),
+        yaxis=dict(title="Total Item Cost"),
         xaxis=dict(title="Month"),
         barmode='group',  # Group bars together by month
         height=450,
@@ -329,6 +329,7 @@ if not filtered_data.empty:
         st.markdown('<h2 class="custom-subheader"> Reedemptions Cost and Number Over Time</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig, use_container_width=True)
         with st.expander("View Monthly Cost Data", expanded=False):
+                claims_over_time = df_time_series.rename(columns={'Member Number': 'Number of Redemptions'})
                 st.dataframe(df_time_series.style.background_gradient(cmap='YlOrBr'))
         st.markdown('<h2 class="custom-subheader"> Redemptions by Merchant Partner</h2>', unsafe_allow_html=True)
         st.plotly_chart(fig_bar, use_container_width=True)
